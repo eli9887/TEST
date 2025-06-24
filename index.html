@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>متجر الأحذية - StepStyle</title>
+    <title>متجر الأحذية - B&S</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -14,8 +15,8 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #f0f0f0;
+            background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
             min-height: 100vh;
         }
 
@@ -27,9 +28,9 @@
 
         /* Header */
         header {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(0, 0, 0, 0.95);
             backdrop-filter: blur(10px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
             position: fixed;
             width: 100%;
             top: 0;
@@ -61,7 +62,7 @@
 
         .nav-links a {
             text-decoration: none;
-            color: #333;
+            color: #f0f0f0;
             font-weight: 500;
             transition: all 0.3s ease;
             position: relative;
@@ -80,6 +81,7 @@
             text-decoration: none;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            cursor: pointer;
         }
 
         .cart:hover {
@@ -89,7 +91,7 @@
 
         /* Hero Section */
         .hero {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9)),
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.9), rgba(51, 51, 51, 0.9)),
                         url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><pattern id="shoe-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100%" height="100%" fill="url(%23shoe-pattern)"/></svg>');
             height: 100vh;
             display: flex;
@@ -169,7 +171,7 @@
         /* Products Section */
         .products {
             padding: 6rem 0;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(0, 0, 0, 0.95);
             backdrop-filter: blur(10px);
             margin-top: -100px;
             position: relative;
@@ -194,42 +196,25 @@
             margin-top: 2rem;
         }
 
-        /* Product Card - هذا هو الجزء القابل للتكرار */
+        /* Product Card */
         .product-card {
-            background: white;
+            background: #222;
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             transition: all 0.3s ease;
             position: relative;
-            group: hover;
         }
 
         .product-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
         }
 
         .product-image {
             width: 100%;
             height: 250px;
-            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .product-image::before {
-            content: '👟';
-            font-size: 5rem;
-            opacity: 0.8;
-            transition: all 0.3s ease;
-        }
-
-        .product-card:hover .product-image::before {
-            transform: scale(1.1) rotate(10deg);
+            object-fit: cover;
         }
 
         .product-info {
@@ -240,11 +225,11 @@
             font-size: 1.3rem;
             font-weight: bold;
             margin-bottom: 0.5rem;
-            color: #333;
+            color: #f0f0f0;
         }
 
         .product-description {
-            color: #666;
+            color: #ccc;
             margin-bottom: 1rem;
             line-height: 1.5;
         }
@@ -254,17 +239,6 @@
             font-weight: bold;
             color: #667eea;
             margin-bottom: 1rem;
-        }
-
-        .product-rating {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .stars {
-            color: #ffc107;
-            margin-left: 0.5rem;
         }
 
         .add-to-cart {
@@ -307,10 +281,125 @@
 
         /* Footer */
         footer {
-            background: #333;
+            background: #111;
             color: white;
             text-align: center;
             padding: 2rem 0;
+        }
+
+        /* Cart Modal */
+        .cart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cart-content {
+            background: #222;
+            padding: 2rem;
+            border-radius: 20px;
+            width: 80%;
+            max-width: 600px;
+            color: #f0f0f0;
+        }
+
+        .cart-content h2 {
+            margin-bottom: 1rem;
+        }
+
+        .cart-items {
+            margin-bottom: 1rem;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .cart-total {
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .checkout-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .checkout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Order Form */
+        .order-form {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-content {
+            background: #222;
+            padding: 2rem;
+            border-radius: 20px;
+            width: 80%;
+            max-width: 600px;
+            color: #f0f0f0;
+        }
+
+        .form-content h2 {
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 5px;
+            border: none;
+        }
+
+        .confirm-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .confirm-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
         /* Responsive */
@@ -348,20 +437,20 @@
 <body>
     <header>
         <nav class="container">
-            <div class="logo">StepStyle</div>
+            <div class="logo">B&S</div>
             <ul class="nav-links">
                 <li><a href="#home">الرئيسية</a></li>
                 <li><a href="#products">المنتجات</a></li>
                 <li><a href="#about">عن المتجر</a></li>
                 <li><a href="#contact">اتصل بنا</a></li>
             </ul>
-            <a href="#cart" class="cart">السلة (0)</a>
+            <div class="cart" onclick="toggleCart()">السلة (0)</div>
         </nav>
     </header>
 
     <section class="hero" id="home">
         <div class="hero-content">
-            <h1>مرحباً بك في StepStyle</h1>
+            <h1>مرحباً بك في B&S</h1>
             <p>أفضل مجموعة أحذية عصرية وأنيقة</p>
             <a href="#products" class="cta-btn">تسوق الآن</a>
         </div>
@@ -371,110 +460,108 @@
         <div class="container">
             <h2 class="section-title">منتجاتنا المميزة</h2>
             <div class="products-grid">
-                
-                <!-- منتج 1 - يمكن تكرار هذا الجزء لإضافة منتجات جديدة -->
                 <div class="product-card fade-in">
                     <div class="badge new">جديد</div>
-                    <div class="product-image" style="background: linear-gradient(45deg, #667eea, #764ba2);"></div>
+                    <img class="product-image" src="https://via.placeholder.com/300x250" alt="حذاء رياضي كلاسيكي">
                     <div class="product-info">
                         <h3 class="product-name">حذاء رياضي كلاسيكي</h3>
                         <p class="product-description">حذاء رياضي عصري مصمم للراحة والأناقة، مناسب للاستخدام اليومي</p>
-                        <div class="product-rating">
-                            <span>4.8</span>
-                            <div class="stars">★★★★★</div>
-                        </div>
                         <div class="product-price">299 ريال</div>
                         <button class="add-to-cart" onclick="addToCart('حذاء رياضي كلاسيكي', 299)">أضف للسلة</button>
                     </div>
                 </div>
 
-                <!-- منتج 2 - يمكن تكرار هذا الجزء لإضافة منتجات جديدة -->
                 <div class="product-card fade-in">
                     <div class="badge sale">خصم</div>
-                    <div class="product-image" style="background: linear-gradient(45deg, #f093fb, #f5576c);"></div>
+                    <img class="product-image" src="https://via.placeholder.com/300x250" alt="حذاء كاجوال أنيق">
                     <div class="product-info">
                         <h3 class="product-name">حذاء كاجوال أنيق</h3>
                         <p class="product-description">حذاء كاجوال مريح وأنيق، مثالي للمناسبات الاجتماعية والعمل</p>
-                        <div class="product-rating">
-                            <span>4.6</span>
-                            <div class="stars">★★★★☆</div>
-                        </div>
                         <div class="product-price">399 ريال</div>
                         <button class="add-to-cart" onclick="addToCart('حذاء كاجوال أنيق', 399)">أضف للسلة</button>
                     </div>
                 </div>
 
-                <!-- منتج 3 - يمكن تكرار هذا الجزء لإضافة منتجات جديدة -->
                 <div class="product-card fade-in">
-                    <div class="product-image" style="background: linear-gradient(45deg, #4facfe, #00f2fe);"></div>
+                    <img class="product-image" src="https://via.placeholder.com/300x250" alt="حذاء رسمي فاخر">
                     <div class="product-info">
                         <h3 class="product-name">حذاء رسمي فاخر</h3>
                         <p class="product-description">حذاء رسمي من الجلد الطبيعي، مناسب للمناسبات الرسمية والعمل</p>
-                        <div class="product-rating">
-                            <span>4.9</span>
-                            <div class="stars">★★★★★</div>
-                        </div>
                         <div class="product-price">599 ريال</div>
                         <button class="add-to-cart" onclick="addToCart('حذاء رسمي فاخر', 599)">أضف للسلة</button>
                     </div>
                 </div>
 
-                <!-- منتج 4 - يمكن تكرار هذا الجزء لإضافة منتجات جديدة -->
                 <div class="product-card fade-in">
                     <div class="badge new">جديد</div>
-                    <div class="product-image" style="background: linear-gradient(45deg, #fa709a, #fee140);"></div>
+                    <img class="product-image" src="https://via.placeholder.com/300x250" alt="حذاء رياضي للجري">
                     <div class="product-info">
                         <h3 class="product-name">حذاء رياضي للجري</h3>
                         <p class="product-description">حذاء رياضي متطور مصمم خصيصاً للجري والأنشطة الرياضية</p>
-                        <div class="product-rating">
-                            <span>4.7</span>
-                            <div class="stars">★★★★★</div>
-                        </div>
                         <div class="product-price">449 ريال</div>
                         <button class="add-to-cart" onclick="addToCart('حذاء رياضي للجري', 449)">أضف للسلة</button>
                     </div>
                 </div>
 
-                <!-- منتج 5 - يمكن تكرار هذا الجزء لإضافة منتجات جديدة -->
                 <div class="product-card fade-in">
                     <div class="badge sale">خصم</div>
-                    <div class="product-image" style="background: linear-gradient(45deg, #a8edea, #fed6e3);"></div>
+                    <img class="product-image" src="https://via.placeholder.com/300x250" alt="حذاء صيفي خفيف">
                     <div class="product-info">
                         <h3 class="product-name">حذاء صيفي خفيف</h3>
                         <p class="product-description">حذاء صيفي خفيف ومريح، مثالي للأجواء الحارة والمشي لمسافات طويلة</p>
-                        <div class="product-rating">
-                            <span>4.5</span>
-                            <div class="stars">★★★★☆</div>
-                        </div>
                         <div class="product-price">249 ريال</div>
                         <button class="add-to-cart" onclick="addToCart('حذاء صيفي خفيف', 249)">أضف للسلة</button>
                     </div>
                 </div>
 
-                <!-- منتج 6 - يمكن تكرار هذا الجزء لإضافة منتجات جديدة -->
                 <div class="product-card fade-in">
-                    <div class="product-image" style="background: linear-gradient(45deg, #ff9a9e, #fecfef);"></div>
+                    <img class="product-image" src="https://via.placeholder.com/300x250" alt="حذاء شتوي دافئ">
                     <div class="product-info">
                         <h3 class="product-name">حذاء شتوي دافئ</h3>
                         <p class="product-description">حذاء شتوي مبطن ودافئ، مقاوم للماء ومناسب للأجواء الباردة</p>
-                        <div class="product-rating">
-                            <span>4.8</span>
-                            <div class="stars">★★★★★</div>
-                        </div>
                         <div class="product-price">549 ريال</div>
                         <button class="add-to-cart" onclick="addToCart('حذاء شتوي دافئ', 549)">أضف للسلة</button>
                     </div>
                 </div>
-
             </div>
         </div>
     </section>
 
     <footer>
         <div class="container">
-            <p>&copy; 2025 StepStyle. جميع الحقوق محفوظة.</p>
+            <p>© 2025 B&S. جميع الحقوق محفوظة.</p>
         </div>
     </footer>
+
+    <!-- Cart Modal -->
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-content">
+            <h2>سلة التسوق</h2>
+            <div class="cart-items" id="cartItems"></div>
+            <div class="cart-total" id="cartTotal">المجموع: 0 ريال</div>
+            <button class="checkout-btn" onclick="toggleOrderForm()">طلب</button>
+        </div>
+    </div>
+
+    <!-- Order Form -->
+    <div class="order-form" id="orderForm">
+        <div class="form-content">
+            <h2>تفاصيل الطلب</h2>
+            <div class="form-group">
+                <label for="name">الاسم</label>
+                <input type="text" id="name" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">رقم الهاتف</label>
+                <input type="text" id="phone" required>
+            </div>
+            <div class="form-group">
+                <label for="address">العنوان</label>
+                <input type="text" id="address" required>
+            </div>
+            <button class="confirm-btn" onclick="confirmOrder()">تأكيد الطلب</button>
+        </div>
+    </div>
 
     <script>
         let cart = [];
@@ -523,6 +610,61 @@
             }, 3000);
         }
 
+        // Toggle cart modal
+        function toggleCart() {
+            const cartModal = document.getElementById('cartModal');
+            cartModal.style.display = cartModal.style.display === 'flex' ? 'none' : 'flex';
+            updateCartModal();
+        }
+
+        function updateCartModal() {
+            const cartItemsElement = document.getElementById('cartItems');
+            const cartTotalElement = document.getElementById('cartTotal');
+            cartItemsElement.innerHTML = '';
+            let total = 0;
+            cart.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'cart-item';
+                itemElement.innerHTML = `<span>${item.name}</span><span>${item.price} ريال</span>`;
+                cartItemsElement.appendChild(itemElement);
+                total += item.price;
+            });
+            cartTotalElement.textContent = `المجموع: ${total} ريال`;
+        }
+
+        // Toggle order form
+        function toggleOrderForm() {
+            const orderForm = document.getElementById('orderForm');
+            orderForm.style.display = orderForm.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        // Confirm order
+        function confirmOrder() {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+            if (name && phone && address) {
+                const orderDetails = `الاسم: ${name}\nرقم الهاتف: ${phone}\nالعنوان: ${address}\nالمنتجات:\n${cart.map(item => `${item.name} - ${item.price} ريال`).join('\n')}\nالمجموع: ${cart.reduce((sum, item) => sum + item.price, 0)} ريال`;
+                // تشفير النص باستخدام AES-256 وكلمة المرور "122911"
+                const key = '122911';
+                const encrypted = CryptoJS.AES.encrypt(orderDetails, key).toString();
+                // إنشاء رابط واتساب مع الرسالة المشفرة
+                const whatsappNumber = '+20123456789';
+                const whatsappMessage = encodeURIComponent(encrypted);
+                const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+                // عرض الرابط للمستخدم
+                alert(`تم إنشاء رابط واتساب. انقر على الرابط التالي لإرسال الطلب:\n\n${whatsappLink}`);
+                // إغلاق النماذج وإعادة تعيين السلة
+                toggleOrderForm();
+                toggleCart();
+                cart = [];
+                cartCount = 0;
+                updateCartDisplay();
+            } else {
+                alert('يرجى ملء جميع الحقول');
+            }
+        }
+
         // Smooth scrolling
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -559,13 +701,13 @@
         window.addEventListener('scroll', () => {
             const header = document.querySelector('header');
             if (window.scrollY > 100) {
-                header.style.background = 'rgba(255, 255, 255, 0.98)';
-                header.style.boxShadow = '0 4px 30px rgba(0, 0, 0, 0.15)';
-            } else { 
-                heade.style.background = 'rgba(255, 255, 255, 0.95)';
-                header.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.1)';
+                header.style.background = 'rgba(0, 0, 0, 0.98)';
+                header.style.boxShadow = '0 4px 30px rgba(0, 0, 0, 0.7)';
+            } else {
+                header.style.background = 'rgba(0, 0, 0, 0.95)';
+                header.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.5)';
             }
         });
     </script>
 </body>
-  </html>
+                                   </html>
